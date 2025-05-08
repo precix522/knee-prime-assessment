@@ -10,15 +10,34 @@ export async function handleSendOTP(request: Request): Promise<Response> {
   try {
     const { phone_number, use_vonage } = await request.json();
     
+    // Basic validation
+    if (!phone_number) {
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          message: 'Phone number is required' 
+        }),
+        { 
+          status: 400,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+    }
+    
+    // Format phone number if needed
+    const formattedPhone = phone_number.startsWith('+') ? phone_number : `+${phone_number}`;
+    
+    console.log(`Attempting to send OTP to ${formattedPhone} using ${use_vonage ? 'Vonage' : 'Twilio'}`);
+    
     let result;
     
     // Use Vonage if specified, otherwise use Twilio
     if (use_vonage) {
       console.log('Using Vonage SMS for OTP');
-      result = await sendOTPSms(phone_number);
+      result = await sendOTPSms(formattedPhone);
     } else {
       console.log('Using Twilio for OTP');
-      result = await sendOTP(phone_number);
+      result = await sendOTP(formattedPhone);
     }
     
     return new Response(JSON.stringify(result), {
@@ -46,16 +65,33 @@ export async function handleVerifyOTP(request: Request): Promise<Response> {
   try {
     const { phone_number, code, use_vonage } = await request.json();
     
+    // Basic validation
+    if (!phone_number || !code) {
+      return new Response(
+        JSON.stringify({ 
+          success: false, 
+          message: 'Phone number and code are required' 
+        }),
+        { 
+          status: 400,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+    }
+    
+    // Format phone number if needed
+    const formattedPhone = phone_number.startsWith('+') ? phone_number : `+${phone_number}`;
+    
     let result;
     
     // Use Vonage if specified, otherwise use Twilio
     if (use_vonage) {
       console.log('Using Vonage SMS for OTP verification');
-      result = await verifyOTPSms(phone_number, code);
+      result = await verifyOTPSms(formattedPhone, code);
       
       // Add session_id for consistency with Twilio implementation
       if (result.success) {
-        const sessionId = `vonage_${Date.now()}_${phone_number.replace(/[^0-9]/g, '')}`;
+        const sessionId = `vonage_${Date.now()}_${formattedPhone.replace(/[^0-9]/g, '')}`;
         result = {
           ...result,
           session_id: sessionId
@@ -63,7 +99,7 @@ export async function handleVerifyOTP(request: Request): Promise<Response> {
       }
     } else {
       console.log('Using Twilio for OTP verification');
-      result = await verifyOTP(phone_number, code);
+      result = await verifyOTP(formattedPhone, code);
     }
     
     return new Response(JSON.stringify(result), {

@@ -102,7 +102,9 @@ export default function VonageLogin() {
     try {
       // Format phone number if needed
       const formattedPhone = phone.startsWith('+') ? phone : `+${phone}`;
+      console.log(`Sending OTP to ${formattedPhone} using ${useVonage ? 'Vonage' : 'Twilio'}`);
       
+      // Direct API call instead of using fetch
       const response = await fetch('/api/send-otp', {
         method: 'POST',
         headers: {
@@ -113,6 +115,11 @@ export default function VonageLogin() {
           use_vonage: useVonage
         })
       });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Server error: ${response.status}`);
+      }
 
       const data = await response.json();
 
@@ -184,6 +191,11 @@ export default function VonageLogin() {
         })
       });
 
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Server error: ${response.status}`);
+      }
+
       const data = await response.json();
 
       if (!data.success) {
@@ -252,6 +264,14 @@ export default function VonageLogin() {
                 <AlertDescription>
                   OTP verification will be bypassed in dev mode.
                 </AlertDescription>
+              </Alert>
+            )}
+
+            {error && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
 
