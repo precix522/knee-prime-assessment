@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import GeneralLogin from "./pages/GeneralLogin";
+import VonageLogin from "./pages/VonageLogin";
 import Logout from "./pages/Logout";
 import PatientID from "./pages/PatientID";
 import ReportViewer from "./pages/ReportViewer";
@@ -53,6 +54,7 @@ const App = () => {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/login" element={<Login />} />
               <Route path="/general-login" element={<GeneralLogin />} />
+              <Route path="/vonage-login" element={<VonageLogin />} />
               <Route path="/logout" element={<Logout />} />
               <Route path="/patient-id" element={<PatientID />} />
               <Route path="/report-viewer" element={<ReportViewer />} />

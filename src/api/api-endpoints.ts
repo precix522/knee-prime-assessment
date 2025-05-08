@@ -1,16 +1,25 @@
 
-// This file sets up the API routes for the Twilio service and email service
+// This file sets up the API routes for the Twilio service, email service, and Vonage SMS
 
 import { sendOTP, verifyOTP, validateSession } from './twilio-service';
+import { sendOTPSms, verifyOTPSms } from './vonage-service';
 import { sendEmail } from './email-service';
 
 // API route for sending OTP
 export async function handleSendOTP(request: Request): Promise<Response> {
   try {
-    const { phone_number } = await request.json();
+    const { phone_number, use_vonage } = await request.json();
     
-    // Call the Twilio service to send OTP
-    const result = await sendOTP(phone_number);
+    let result;
+    
+    // Use Vonage if specified, otherwise use Twilio
+    if (use_vonage) {
+      console.log('Using Vonage SMS for OTP');
+      result = await sendOTPSms(phone_number);
+    } else {
+      console.log('Using Twilio for OTP');
+      result = await sendOTP(phone_number);
+    }
     
     return new Response(JSON.stringify(result), {
       status: result.success ? 200 : 400,
@@ -35,10 +44,27 @@ export async function handleSendOTP(request: Request): Promise<Response> {
 // API route for verifying OTP
 export async function handleVerifyOTP(request: Request): Promise<Response> {
   try {
-    const { phone_number, code } = await request.json();
+    const { phone_number, code, use_vonage } = await request.json();
     
-    // Call the Twilio service to verify OTP
-    const result = await verifyOTP(phone_number, code);
+    let result;
+    
+    // Use Vonage if specified, otherwise use Twilio
+    if (use_vonage) {
+      console.log('Using Vonage SMS for OTP verification');
+      result = await verifyOTPSms(phone_number, code);
+      
+      // Add session_id for consistency with Twilio implementation
+      if (result.success) {
+        const sessionId = `vonage_${Date.now()}_${phone_number.replace(/[^0-9]/g, '')}`;
+        result = {
+          ...result,
+          session_id: sessionId
+        };
+      }
+    } else {
+      console.log('Using Twilio for OTP verification');
+      result = await verifyOTP(phone_number, code);
+    }
     
     return new Response(JSON.stringify(result), {
       status: result.success ? 200 : 400,

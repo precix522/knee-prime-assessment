@@ -4,6 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { RememberMeCheckbox } from "./RememberMeCheckbox";
 import { CaptchaVerification } from "./CaptchaVerification";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 interface PhoneFormProps {
   phoneInput: string;
@@ -18,6 +20,8 @@ interface PhoneFormProps {
   captchaError?: string | null;
   setCaptchaError?: (error: string | null) => void;
   devMode?: boolean;
+  useVonage?: boolean;
+  setUseVonage?: (use: boolean) => void;
 }
 
 export const PhoneForm = ({
@@ -33,6 +37,8 @@ export const PhoneForm = ({
   captchaError,
   setCaptchaError,
   devMode = false,
+  useVonage = false,
+  setUseVonage,
 }: PhoneFormProps) => {
   
   const handleCaptchaVerify = (token: string | null) => {
@@ -84,6 +90,19 @@ export const PhoneForm = ({
             checked={rememberMe} 
             onCheckedChange={setRememberMe} 
           />
+        )}
+        
+        {setUseVonage && (
+          <div className="flex items-center space-x-2 mt-2">
+            <Switch
+              id="use-vonage"
+              checked={useVonage}
+              onCheckedChange={setUseVonage}
+            />
+            <Label htmlFor="use-vonage" className="text-sm text-gray-600">
+              Use Vonage SMS for OTP
+            </Label>
+          </div>
         )}
         
         {error && <p className="text-red-500 text-sm">{error}</p>}
