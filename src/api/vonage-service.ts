@@ -4,7 +4,7 @@
 // Vonage API credentials - Using environment variables for security
 const VONAGE_API_KEY = import.meta.env.VITE_VONAGE_API_KEY || "";
 const VONAGE_API_SECRET = import.meta.env.VITE_VONAGE_API_SECRET || "";
-const VONAGE_BRAND_NAME = import.meta.env.VITE_VONAGE_BRAND_NAME || "HealthApp";
+const VONAGE_BRAND_NAME = import.meta.env.VITE_VONAGE_BRAND_NAME || "Precix";
 
 interface VonageSmsResponse {
   success: boolean;
@@ -23,7 +23,7 @@ export const sendOTPSms = async (phoneNumber: string): Promise<VonageSmsResponse
     
     console.log(`[Vonage Service] Sending OTP ${otpCode} to ${phoneNumber}`);
     
-    // For development purposes in case Vonage credentials aren't set up
+    // Check if Vonage credentials are set up
     if (!VONAGE_API_KEY || !VONAGE_API_SECRET) {
       console.warn("[Vonage Service] Using development mode. No actual SMS sent.");
       
@@ -36,20 +36,9 @@ export const sendOTPSms = async (phoneNumber: string): Promise<VonageSmsResponse
       };
     }
     
-    // Instead of using the Vonage API directly, we'll use a simulated response
-    // for the purpose of this demonstration (in production, you would use the actual Vonage API)
-    console.log("[Vonage Service] Simulating successful SMS delivery");
+    // Use the actual Vonage API
+    console.log("[Vonage Service] Using Vonage API to send SMS");
     
-    // Store OTP code for verification (in production, this would be stored securely server-side)
-    sessionStorage.setItem(`otp_${phoneNumber}`, otpCode);
-    
-    return {
-      success: true,
-      message: 'OTP sent successfully (simulated in development)',
-      requestId: `sim-${Date.now()}`
-    };
-    
-    /* In production environment, you would use code like this:
     // Call the Vonage API
     const response = await fetch('https://rest.nexmo.com/sms/json', {
       method: 'POST',
@@ -66,12 +55,15 @@ export const sendOTPSms = async (phoneNumber: string): Promise<VonageSmsResponse
     });
     
     if (!response.ok) {
+      console.error(`[Vonage Service] HTTP error: ${response.status}`);
       throw new Error(`HTTP error: ${response.status}`);
     }
     
     const data = await response.json();
+    console.log("[Vonage Service] Vonage API response:", data);
     
     if (data && data.messages && data.messages[0].status === '0') {
+      // Store OTP code for verification
       sessionStorage.setItem(`otp_${phoneNumber}`, otpCode);
       return {
         success: true,
@@ -81,7 +73,6 @@ export const sendOTPSms = async (phoneNumber: string): Promise<VonageSmsResponse
     } else {
       throw new Error(data.messages?.[0]?.['error-text'] || 'Failed to send SMS');
     }
-    */
   } catch (error: any) {
     console.error('[Vonage Service] Error sending OTP:', error);
     return {
