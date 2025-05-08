@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTwilioAuthStore } from "../utils/twilio-auth-store";
@@ -245,7 +246,7 @@ export default function VonageLogin() {
           </CardHeader>
           <CardContent className="grid gap-4">
             {devMode && (
-              <Alert variant="warning" className="bg-amber-50 border-amber-200">
+              <Alert variant="destructive" className="bg-amber-50 border-amber-200">
                 <AlertCircle className="h-4 w-4 text-amber-600" />
                 <AlertTitle>Developer Mode Active</AlertTitle>
                 <AlertDescription>
