@@ -8,10 +8,16 @@ import { sendEmail } from './email-service';
 // API route for sending OTP
 export async function handleSendOTP(request: Request): Promise<Response> {
   try {
-    const { phone_number, use_vonage } = await request.json();
+    const body = await request.json().catch(err => {
+      console.error('Failed to parse request body:', err);
+      return {};
+    });
+    
+    const { phone_number, use_vonage } = body;
     
     // Basic validation
     if (!phone_number) {
+      console.error('API Error - Send OTP: Missing phone number');
       return new Response(
         JSON.stringify({ 
           success: false, 
@@ -39,6 +45,8 @@ export async function handleSendOTP(request: Request): Promise<Response> {
       console.log('Using Twilio for OTP');
       result = await sendOTP(formattedPhone);
     }
+    
+    console.log('OTP send result:', result);
     
     return new Response(JSON.stringify(result), {
       status: result.success ? 200 : 400,

@@ -22,6 +22,8 @@ export const sendOTPSms = async (phoneNumber: string): Promise<VonageSmsResponse
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
     
     console.log(`[Vonage Service] Sending OTP ${otpCode} to ${phoneNumber}`);
+    console.log(`[Vonage Service] API Key available: ${Boolean(VONAGE_API_KEY)}`);
+    console.log(`[Vonage Service] API Secret available: ${Boolean(VONAGE_API_SECRET)}`);
     
     // Check if Vonage credentials are set up
     if (!VONAGE_API_KEY || !VONAGE_API_SECRET) {
@@ -49,7 +51,7 @@ export const sendOTPSms = async (phoneNumber: string): Promise<VonageSmsResponse
         api_key: VONAGE_API_KEY,
         api_secret: VONAGE_API_SECRET,
         from: VONAGE_BRAND_NAME,
-        to: phoneNumber,
+        to: phoneNumber.replace(/^\+/, ''), // Remove the + prefix as Vonage doesn't need it
         text: `Your verification code is: ${otpCode}. Valid for 5 minutes.`
       })
     });

@@ -104,7 +104,7 @@ export default function VonageLogin() {
       const formattedPhone = phone.startsWith('+') ? phone : `+${phone}`;
       console.log(`Sending OTP to ${formattedPhone} using ${useVonage ? 'Vonage' : 'Twilio'}`);
       
-      // Direct API call instead of using fetch
+      // Direct API call with better error handling
       const response = await fetch('/api/send-otp', {
         method: 'POST',
         headers: {
@@ -116,12 +116,12 @@ export default function VonageLogin() {
         })
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `Server error: ${response.status}`);
-      }
-
       const data = await response.json();
+      console.log("OTP send response:", data);
+
+      if (!response.ok) {
+        throw new Error(data.message || `Server error: ${response.status}`);
+      }
 
       if (!data.success) {
         throw new Error(data.message || "Failed to send OTP");
